@@ -1,7 +1,10 @@
 const express = require("express");
+const bodyParser = require("body-parser");
 require("dotenv").config();
 const { model } = require("mongoose");
 const app = express();
+
+app.use(bodyParser.json());
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*"); // Allow access to any domain
@@ -17,7 +20,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/api/posts", (req, res) => {
+app.get("/api/posts", (req, res, next) => {
   const posts = [
     {
       id: "1",
@@ -39,6 +42,14 @@ app.get("/api/posts", (req, res) => {
   return res
     .status(200)
     .json({ message: "Post fetched successfully", posts: posts });
+});
+
+app.post("/api/posts", (req, res, next) => {
+  const post = req.body;
+  console.log(post);
+  return res.status(201).json({
+    message: "Post added successfully",
+  });
 });
 
 module.exports = app;
