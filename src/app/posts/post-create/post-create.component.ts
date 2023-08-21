@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Post } from '../post.model';
 import { PostsService } from '../posts.service';
 
@@ -13,11 +13,11 @@ export class PostCreateComponent implements OnInit {
   private mode = 'create';
   private postId?: string | null = null;
   post?: Post;
+  isLoading = false;
 
   constructor(
     private postService: PostsService,
-    private route: ActivatedRoute,
-    private router: Router
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -25,6 +25,7 @@ export class PostCreateComponent implements OnInit {
       if (paramMap.has('postId')) {
         this.mode = 'edit';
         this.postId = paramMap.get('postId');
+        this.isLoading = true;
 
         if (this.postId) {
           this.postService.getPost(this.postId).subscribe((post) => {
@@ -33,6 +34,7 @@ export class PostCreateComponent implements OnInit {
               title: post.title,
               content: post.content,
             };
+            this.isLoading = false;
           });
         }
       } else {
@@ -47,6 +49,7 @@ export class PostCreateComponent implements OnInit {
       return;
     }
 
+    this.isLoading = true;
     if (this.mode === 'edit' && this.postId) {
       this.postService.updatePost(
         this.postId,
@@ -54,7 +57,6 @@ export class PostCreateComponent implements OnInit {
         form.value.content
       );
       form.resetForm();
-      this.router.navigate(['/']);
       return;
     }
 
