@@ -1,8 +1,19 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
 require("dotenv").config();
-const { model } = require("mongoose");
 const app = express();
+
+const postsRoutes = require("./routes/posts");
+
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("Connected to database!");
+  })
+  .catch(() => {
+    console.log("Connection failed!");
+  });
 
 app.use(bodyParser.json());
 
@@ -14,42 +25,12 @@ app.use((req, res, next) => {
   ); // Allow these headers
   res.setHeader(
     "Access-Control-Allow-Methods",
-    "GET, POST, PATCH, DELETE, OPTIONS"
+    "GET, POST, PATCH, PUT, DELETE, OPTIONS"
   ); // Allow these methods
 
   next();
 });
 
-app.get("/api/posts", (req, res, next) => {
-  const posts = [
-    {
-      id: "1",
-      title: "First server-side post",
-      content: "This is coming from the server",
-    },
-    {
-      id: "2",
-      title: "Second server-side post",
-      content: "This is coming from the server!",
-    },
-    {
-      id: "3",
-      title: "Third server-side post",
-      content: "This is coming from the server!!",
-    },
-  ];
-
-  return res
-    .status(200)
-    .json({ message: "Post fetched successfully", posts: posts });
-});
-
-app.post("/api/posts", (req, res, next) => {
-  const post = req.body;
-  console.log(post);
-  return res.status(201).json({
-    message: "Post added successfully",
-  });
-});
+app.use("/api/posts", postsRoutes);
 
 module.exports = app;
