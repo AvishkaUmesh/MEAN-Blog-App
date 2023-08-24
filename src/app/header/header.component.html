@@ -15,7 +15,7 @@
       <li *ngIf="!isAuthenticated">
         <a
           mat-button
-          routerLink="/login"
+          routerLink="/auth/login"
           routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: true }"
           >Login</a
@@ -24,7 +24,7 @@
       <li *ngIf="!isAuthenticated">
         <a
           mat-button
-          routerLink="/signup"
+          routerLink="/auth/signup"
           routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: true }"
           >Signup</a
