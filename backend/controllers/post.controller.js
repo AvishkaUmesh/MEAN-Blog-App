@@ -33,6 +33,7 @@ exports.createPost = (req, res, next) => {
     content: req.body.content,
     imagePath:
       req.protocol + "://" + req.get("host") + "/images/" + req.file.filename,
+    creator: req.userData.userId,
   });
 
   post.save().then((createdPost) => {
@@ -57,12 +58,26 @@ exports.updatePost = (req, res, next) => {
     title: req.body.title,
     content: req.body.content,
     imagePath: imagePath,
+    creator: req.userData.userId,
   });
 
-  Post.updateOne({ _id: req.params.id }, post).then((result) => {
-    return res.status(200).json({
-      message: "Post updated",
-    });
+  Post.updateOne(
+    { _id: req.params.id, creator: req.userData.userId },
+    post
+  ).then((result) => {
+    if (result.matchedCount === 1 && result.modifiedCount === 1) {
+      return res.status(200).json({
+        message: "Post updated successfully",
+      });
+    } else if (result.matchedCount === 0) {
+      return res.status(401).json({
+        message: "Not authorized",
+      });
+    } else {
+      return res.status(200).json({
+        message: "No changes made to the post",
+      });
+    }
   });
 };
 
@@ -79,10 +94,17 @@ exports.getPost = (req, res, next) => {
 };
 
 exports.deletePost = (req, res, next) => {
-  Post.deleteOne({ _id: req.params.id }).then((result) => {
-    console.log(result);
-    return res.status(200).json({
-      message: "Post deleted",
-    });
-  });
+  Post.deleteOne({ _id: req.params.id, creator: req.userData.userId }).then(
+    (result) => {
+      if (result.deletedCount > 0) {
+        return res.status(200).json({
+          message: "Post deleted successfully",
+        });
+      } else {
+        return res.status(401).json({
+          message: "Not authorized",
+        });
+      }
+    }
+  );
 };
