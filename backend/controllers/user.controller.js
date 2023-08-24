@@ -19,7 +19,7 @@ exports.createUser = (req, res, next) => {
       })
       .catch((err) => {
         res.status(500).json({
-          error: err,
+          message: "Invalid authentication credentials!",
         });
       });
   });
@@ -36,7 +36,7 @@ exports.userLogin = (req, res, next) => {
       bcrypt.compare(req.body.password, user.password).then((result) => {
         if (!result)
           return res.status(401).json({
-            message: "Auth failed",
+            message: "Invalid authentication credentials!",
           });
 
         const token = jwt.sign(
@@ -54,7 +54,7 @@ exports.userLogin = (req, res, next) => {
     })
     .catch((err) => {
       return res.status(401).json({
-        message: "Auth failed",
+        message: "Auth failed!",
       });
     });
 };

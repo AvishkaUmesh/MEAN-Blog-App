@@ -23,7 +23,9 @@ exports.getPosts = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      return res.status(500).json({
+        message: "Fetching posts failed!",
+      });
     });
 };
 
@@ -36,15 +38,22 @@ exports.createPost = (req, res, next) => {
     creator: req.userData.userId,
   });
 
-  post.save().then((createdPost) => {
-    return res.status(201).json({
-      message: "Post added successfully",
-      post: {
-        ...createdPost,
-        id: createdPost._id,
-      },
+  post
+    .save()
+    .then((createdPost) => {
+      return res.status(201).json({
+        message: "Post added successfully",
+        post: {
+          ...createdPost,
+          id: createdPost._id,
+        },
+      });
+    })
+    .catch((err) => {
+      return res.status(500).json({
+        message: "Creating a post failed!",
+      });
     });
-  });
 };
 
 exports.updatePost = (req, res, next) => {
@@ -61,41 +70,50 @@ exports.updatePost = (req, res, next) => {
     creator: req.userData.userId,
   });
 
-  Post.updateOne(
-    { _id: req.params.id, creator: req.userData.userId },
-    post
-  ).then((result) => {
-    if (result.matchedCount === 1 && result.modifiedCount === 1) {
-      return res.status(200).json({
-        message: "Post updated successfully",
+  Post.updateOne({ _id: req.params.id, creator: req.userData.userId }, post)
+    .then((result) => {
+      if (result.matchedCount === 1 && result.modifiedCount === 1) {
+        return res.status(200).json({
+          message: "Post updated successfully",
+        });
+      } else if (result.matchedCount === 0) {
+        return res.status(401).json({
+          message: "Not authorized",
+        });
+      } else {
+        return res.status(200).json({
+          message: "No changes made to the post",
+        });
+      }
+    })
+    .catch((err) => {
+      return res.status(500).json({
+        message: "Couldn't update post",
       });
-    } else if (result.matchedCount === 0) {
-      return res.status(401).json({
-        message: "Not authorized",
-      });
-    } else {
-      return res.status(200).json({
-        message: "No changes made to the post",
-      });
-    }
-  });
+    });
 };
 
 exports.getPost = (req, res, next) => {
-  Post.findById(req.params.id).then((post) => {
-    if (post) {
-      return res.status(200).json(post);
-    } else {
-      return res.status(404).json({
-        message: "Post not found",
+  Post.findById(req.params.id)
+    .then((post) => {
+      if (post) {
+        return res.status(200).json(post);
+      } else {
+        return res.status(404).json({
+          message: "Post not found",
+        });
+      }
+    })
+    .catch((err) => {
+      return res.status(500).json({
+        message: "Fetching post failed!",
       });
-    }
-  });
+    });
 };
 
 exports.deletePost = (req, res, next) => {
-  Post.deleteOne({ _id: req.params.id, creator: req.userData.userId }).then(
-    (result) => {
+  Post.deleteOne({ _id: req.params.id, creator: req.userData.userId })
+    .then((result) => {
       if (result.deletedCount > 0) {
         return res.status(200).json({
           message: "Post deleted successfully",
@@ -105,6 +123,10 @@ exports.deletePost = (req, res, next) => {
           message: "Not authorized",
         });
       }
-    }
-  );
+    })
+    .catch((err) => {
+      return res.status(500).json({
+        message: "Deleting post failed!",
+      });
+    });
 };
