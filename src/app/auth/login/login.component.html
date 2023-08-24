@@ -35,6 +35,13 @@
       >
     </mat-form-field>
 
-    <button mat-raised-button color="accent" type="submit">Login</button>
+    <button
+      mat-raised-button
+      color="accent"
+      type="submit"
+      [disabled]="isLoading"
+    >
+      Login
+    </button>
   </form>
 </mat-card>
